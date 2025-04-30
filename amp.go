@@ -2,10 +2,9 @@ package goamp
 
 import (
 	"bytes"
-	"fmt"
 )
 
-func marshal(v any, buf *bytes.Buffer) {
+func marshal(buf *bytes.Buffer, v any) {
 	if v == nil {
 		buf.WriteByte(NIL)
 		return
@@ -58,67 +57,106 @@ func marshal(v any, buf *bytes.Buffer) {
 		buf.Write(data)
 		buf.Write(v)
 	case []any:
-		fmt.Println("[]any")
+		buf.WriteByte(LIT)
+		for i := range v {
+			marshal(buf, v[i])
+		}
+		buf.WriteByte(END)
 	case map[any]any:
-		fmt.Println("map[any]any")
+		buf.WriteByte(MAP)
+		for k, v := range v {
+			marshal(buf, k)
+			marshal(buf, v)
+		}
+		buf.WriteByte(END)
+	default:
+		panic("unsupported type")
 	}
 }
 
 func Marshal(v any) *bytes.Buffer {
 	var buf bytes.Buffer
-	marshal(v, &buf)
+	marshal(&buf, v)
 	return &buf
 }
 
-func Unmarshal(buf *bytes.Buffer) any {
+func Unmarshal(buf *bytes.Buffer) (any, bool) {
 	ins, _ := buf.ReadByte()
 	switch ins {
 	case END:
-		return nil
+		return nil, true
 	case NIL:
-		return nil
+		return nil, false
 	case TRU:
-		return true
+		return true, false
 	case FAL:
-		return false
+		return false, false
 	case U8:
-		return BufferToNumber[uint8](buf)
+		return BufferToNumber[uint8](buf), false
 	case U16:
-		return BufferToNumber[uint16](buf)
+		return BufferToNumber[uint16](buf), false
 	case U32:
-		return BufferToNumber[uint32](buf)
+		return BufferToNumber[uint32](buf), false
 	case U64:
-		return BufferToNumber[uint64](buf)
+		return BufferToNumber[uint64](buf), false
 	case I8:
-		return BufferToNumber[int8](buf)
+		return BufferToNumber[int8](buf), false
 	case I16:
-		return BufferToNumber[int16](buf)
+		return BufferToNumber[int16](buf), false
 	case I32:
-		return BufferToNumber[int32](buf)
+		return BufferToNumber[int32](buf), false
 	case I64:
-		return BufferToNumber[int64](buf)
+		return BufferToNumber[int64](buf), false
 	case F32:
-		return BufferToNumber[float32](buf)
+		return BufferToNumber[float32](buf), false
 	case F64:
-		return BufferToNumber[float64](buf)
+		return BufferToNumber[float64](buf), false
 	case S8:
 		l := BufferToNumber[uint8](buf)
-		return BufferToString(buf, int(l))
+		return BufferToString(buf, int(l)), false
 	case S16:
 		l := BufferToNumber[uint16](buf)
-		return BufferToString(buf, int(l))
+		return BufferToString(buf, int(l)), false
 	case S32:
 		l := BufferToNumber[uint32](buf)
-		return BufferToString(buf, int(l))
+		return BufferToString(buf, int(l)), false
 	case A8:
 		l := BufferToNumber[uint8](buf)
-		return BufferToString(buf, int(l))
+		return BufferToString(buf, int(l)), false
 	case A16:
 		l := BufferToNumber[uint16](buf)
-		return BufferToString(buf, int(l))
+		return BufferToString(buf, int(l)), false
 	case A32:
 		l := BufferToNumber[uint32](buf)
-		return BufferToString(buf, int(l))
+		return BufferToString(buf, int(l)), false
+	case LIT:
+		var list []any
+		for {
+			v, end := Unmarshal(buf)
+			if end {
+				return list, false
+			}
+			list = append(list, v)
+		}
+	case MAP:
+		m := make(map[any]any)
+		for {
+			k, end := Unmarshal(buf)
+			if end {
+				return m, false
+			}
+			v, end := Unmarshal(buf)
+			if end {
+				return m, false
+			}
+			m[k] = v
+		}
+	case TUP:
+		l := BufferToNumber[uint8](buf)
+		tuple := make([]any, l)
+		for i := 0; i < int(l); i++ {
+			tuple[i], _ = Unmarshal(buf)
+		}
 	}
-	return nil
+	return nil, false
 }

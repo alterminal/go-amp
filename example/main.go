@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	goamp "github.com/alterminal/go-amp"
 )
 
@@ -18,7 +16,7 @@ func main() {
 	m["hello"] = "world"
 	m["world"] = "false"
 	sbuf = goamp.Marshal(m)
-	um := goamp.Unmarshal(sbuf).(map[any]any)
-	v := um["world"]
-	fmt.Println(v)
+	// um, _ := goamp.Unmarshal(sbuf).(map[any]any)
+	// v := um["world"]
+	// fmt.Println(v)
 }

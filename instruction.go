@@ -28,5 +28,4 @@ const (
 	LIT
 	MAP
 	TUP
-	ARR
 )

@@ -7,23 +7,21 @@ import (
 )
 
 func MarshalMap(v reflect.Value, t reflect.Type, buf *bytes.Buffer) {
-	fmt.Println("Marshalling map", buf.Len())
 	for _, k := range v.MapKeys() {
-		marshal(k, buf)
-		marshal(v.MapIndex(k), buf)
+		marshal(buf, k)
+		marshal(buf, v.MapIndex(k))
 	}
-	fmt.Println("Marshalling map", buf.Len())
 	buf.WriteByte(END)
 }
 
 func UnmarshalMap(buf *bytes.Buffer) map[any]any {
 	m := make(map[any]any)
 	for {
-		key := Unmarshal(buf)
+		key, _ := Unmarshal(buf)
 		if key == nil {
 			return m
 		}
-		value := Unmarshal(buf)
+		value, _ := Unmarshal(buf)
 		fmt.Println(key)
 		m[key] = value
 		fmt.Println(key, value)

@@ -6,7 +6,7 @@ func TestNumber(t *testing.T) {
 	var a int64 = 1234567890123456789
 	buf := Marshal(a)
 	// buf := Marshal(a)
-	b := Unmarshal(buf)
+	b, _ := Unmarshal(buf)
 	n, ok := b.(int64)
 	if !ok {
 		t.Errorf("expected int64, got %T", b)
@@ -17,7 +17,7 @@ func TestNumber(t *testing.T) {
 	var c int64 = -12312
 	buf2 := Marshal(c)
 	// buf := Marshal(a)
-	d := Unmarshal(buf2)
+	d, _ := Unmarshal(buf2)
 	n2, ok := d.(int64)
 	if !ok {
 		t.Errorf("expected int64, got %T", b)
