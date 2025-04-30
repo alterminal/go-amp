@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
-	"unicode/utf8"
 )
 
 func marshal(v any, buf *bytes.Buffer) {
@@ -20,43 +19,23 @@ func marshal(v any, buf *bytes.Buffer) {
 		case reflect.Float64:
 			marshal(v.Float(), buf)
 		}
+	case int8:
+	case int16:
+	case int32:
 	case int64:
-		buf.WriteByte(INT)
-		buf.Write(Int64ToByteArray(v))
+		buf.WriteByte(IntInstruction(v))
+		buf.Write(IntToByteArray(v))
+	case float32:
+		buf.WriteByte(F32)
+		buf.Write(FloatToByteArray(v))
 	case float64:
-		buf.WriteByte(FLO)
-		buf.Write(Float6464ToByteArray(v))
-	case string:
-		buf.WriteByte(U8)
-		var buffer []byte
-		for _, r := range v {
-			buffer = utf8.AppendRune(buffer, r)
-		}
-		buf.Write((Int64ToByteArray(int64(len(buffer)))))
-		for _, b := range buffer {
-			buf.WriteByte(b)
-		}
+		buf.WriteByte(F64)
+		buf.Write(FloatToByteArray(v))
 	case bool:
 		if v {
 			buf.WriteByte(TRU)
 		} else {
 			buf.WriteByte(FAL)
-		}
-	default:
-		val := reflect.ValueOf(v)
-		if val.IsNil() {
-			buf.WriteByte(END)
-			return
-		}
-		typ := reflect.TypeOf(v)
-		if typ.Kind() == reflect.Slice {
-			buf.WriteByte(LIS)
-			return
-		}
-		if typ.Kind() == reflect.Map {
-			buf.WriteByte(MAP)
-			MarshalMap(val, typ, buf)
-			return
 		}
 	}
 }
@@ -72,15 +51,17 @@ func Unmarshal(buf *bytes.Buffer) any {
 	switch ins {
 	case END:
 		return nil
-	case INT:
+	case NIL:
+		return nil
+	case I64:
 		data := make([]byte, 8)
 		buf.Read(data)
 		return ByteArrayToInt64(data)
-	case FLO:
+	case F64:
 		data := make([]byte, 8)
 		buf.Read(data)
 		return ByteArrayToFloat64(data)
-	case U8:
+	case S32:
 		data := make([]byte, 8)
 		buf.Read(data)
 		stringLen := ByteArrayToInt64(data)
@@ -95,9 +76,4 @@ func Unmarshal(buf *bytes.Buffer) any {
 		return UnmarshalMap(buf)
 	}
 	return nil
-}
-
-func UnmarshalInt64(buf *bytes.Buffer) int64 {
-	data, _ := buf.ReadBytes(8)
-	return ByteArrayToInt64(data)
 }

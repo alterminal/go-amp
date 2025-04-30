@@ -3,13 +3,31 @@ package goamp
 // Instruction
 const (
 	END byte = iota // End
-	INT             // Int64
-	FLO             // Float64
-	U8              // UTF-8
-	ATM             // Atom ascii string
-	TRU             // True
-	FAL             // False
-	MAP             // Map
-	LIS             // List
-	TUP             // Tuple
+	NIL
+	TRU
+	FAL
+	BYT
+	U8
+	U16
+	U32
+	U64
+	I8
+	I16
+	I32
+	I64
+	F32
+	F64
+	S8
+	S16
+	S32
+	A8
+	A16
+	A32
+	B8
+	B16
+	B32
+	LIT
+	MAP
+	TUP
+	ARR
 )
