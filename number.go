@@ -55,12 +55,3 @@ func BufferToNumber[T int8 | int16 | int32 | int64 | float32 |
 	}
 	return v
 }
-
-func ByteArrayToFloat64(arr []byte) float64 {
-	val := float64(0)
-	size := len(arr)
-	for i := 0; i < size; i++ {
-		*(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&val)) + uintptr(i))) = arr[i]
-	}
-	return val
-}
