@@ -2,6 +2,7 @@ package goamp
 
 import (
 	"bytes"
+	"fmt"
 )
 
 func marshal(v any, buf *bytes.Buffer) {
@@ -51,6 +52,15 @@ func marshal(v any, buf *bytes.Buffer) {
 		buf.WriteByte(ins)
 		buf.Write(data)
 		buf.Write(StringToByteArray(v))
+	case []byte:
+		ins, data := BinaryHeader(v)
+		buf.WriteByte(ins)
+		buf.Write(data)
+		buf.Write(v)
+	case []any:
+		fmt.Println("[]any")
+	case map[any]any:
+		fmt.Println("map[any]any")
 	}
 }
 
@@ -98,6 +108,15 @@ func Unmarshal(buf *bytes.Buffer) any {
 		l := BufferToNumber[uint16](buf)
 		return BufferToString(buf, int(l))
 	case S32:
+		l := BufferToNumber[uint32](buf)
+		return BufferToString(buf, int(l))
+	case A8:
+		l := BufferToNumber[uint8](buf)
+		return BufferToString(buf, int(l))
+	case A16:
+		l := BufferToNumber[uint16](buf)
+		return BufferToString(buf, int(l))
+	case A32:
 		l := BufferToNumber[uint32](buf)
 		return BufferToString(buf, int(l))
 	}
