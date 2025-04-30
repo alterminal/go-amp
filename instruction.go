@@ -6,7 +6,6 @@ const (
 	NIL
 	TRU
 	FAL
-	BYT
 	U8
 	U16
 	U32
