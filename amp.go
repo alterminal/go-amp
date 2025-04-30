@@ -80,7 +80,7 @@ func Marshal(v any) *bytes.Buffer {
 	return &buf
 }
 
-func Unmarshal(buf *bytes.Buffer) (any, bool) {
+func UnmarshalWithEnd(buf *bytes.Buffer) (any, bool) {
 	ins, _ := buf.ReadByte()
 	switch ins {
 	case END:
@@ -132,7 +132,7 @@ func Unmarshal(buf *bytes.Buffer) (any, bool) {
 	case LIT:
 		var list []any
 		for {
-			v, end := Unmarshal(buf)
+			v, end := UnmarshalWithEnd(buf)
 			if end {
 				return list, false
 			}
@@ -141,11 +141,11 @@ func Unmarshal(buf *bytes.Buffer) (any, bool) {
 	case MAP:
 		m := make(map[any]any)
 		for {
-			k, end := Unmarshal(buf)
+			k, end := UnmarshalWithEnd(buf)
 			if end {
 				return m, false
 			}
-			v, end := Unmarshal(buf)
+			v, end := UnmarshalWithEnd(buf)
 			if end {
 				return m, false
 			}
@@ -155,8 +155,13 @@ func Unmarshal(buf *bytes.Buffer) (any, bool) {
 		l := BufferToNumber[uint8](buf)
 		tuple := make([]any, l)
 		for i := 0; i < int(l); i++ {
-			tuple[i], _ = Unmarshal(buf)
+			tuple[i], _ = UnmarshalWithEnd(buf)
 		}
 	}
 	return nil, false
+}
+
+func Unmarshal(buf *bytes.Buffer) any {
+	v, _ := UnmarshalWithEnd(buf)
+	return v
 }

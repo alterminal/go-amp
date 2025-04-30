@@ -11,7 +11,7 @@ func TestMap(t *testing.T) {
 	m["world"] = "false2"
 	m["good"] = false
 	buf := Marshal(m)
-	um, _ := Unmarshal(buf)
+	um := Unmarshal(buf)
 	umm := um.(map[any]any)
 	if len(umm) != len(m) {
 		t.Errorf("expected %d, got %d", len(m), len(umm))

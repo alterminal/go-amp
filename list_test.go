@@ -9,7 +9,7 @@ func TestList(t *testing.T) {
 	a = append(a, int32(1))
 	a = append(a, "hello")
 	buf := Marshal(a)
-	b, _ := Unmarshal(buf)
+	b := Unmarshal(buf)
 	n, ok := b.([]any)
 	if !ok {
 		t.Errorf("expected []any, got %T", b)
