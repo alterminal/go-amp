@@ -69,6 +69,34 @@ func marshal(buf *bytes.Buffer, v any) {
 			marshal(buf, v)
 		}
 		buf.WriteByte(END)
+	case *int8:
+		marshal(buf, *v)
+	case *int16:
+		marshal(buf, *v)
+	case *int32:
+		marshal(buf, *v)
+	case *int64:
+		marshal(buf, *v)
+	case *float32:
+		marshal(buf, *v)
+	case *float64:
+		marshal(buf, *v)
+	case *uint8:
+		marshal(buf, *v)
+	case *uint16:
+		marshal(buf, *v)
+	case *uint32:
+		marshal(buf, *v)
+	case *uint64:
+		marshal(buf, *v)
+	case *string:
+		marshal(buf, *v)
+	case *[]byte:
+		marshal(buf, *v)
+	case *[]any:
+		marshal(buf, *v)
+	case *map[any]any:
+		marshal(buf, *v)
 	default:
 		panic("unsupported type")
 	}
